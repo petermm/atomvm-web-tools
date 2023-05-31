@@ -74,10 +74,6 @@ export class InstallButton extends HTMLElement {
 
   public overrides: EwtInstallDialog["overrides"];
 
-  public static preload() {
-    import("./connect");
-  }
-
   public connectedCallback() {
     if (this.renderRoot) {
       return;
@@ -94,8 +90,6 @@ export class InstallButton extends HTMLElement {
     }
 
     this.toggleAttribute("install-supported", true);
-
-    this.addEventListener("mouseover", InstallButton.preload);
 
     const slot = document.createElement("slot");
 
@@ -114,9 +108,7 @@ export class InstallButton extends HTMLElement {
       "replaceSync" in CSSStyleSheet.prototype
     ) {
       const sheet = new CSSStyleSheet();
-      // @ts-expect-error
       sheet.replaceSync(InstallButton.style);
-      // @ts-expect-error
       this.renderRoot.adoptedStyleSheets = [sheet];
     } else {
       const styleSheet = document.createElement("style");
