@@ -55,9 +55,7 @@ Example manifest:
     },
     {
       "chipFamily": "ESP8266",
-      "parts": [
-        { "path": "esp8266.bin", "offset": 0 }
-      ]
+      "parts": [{ "path": "esp8266.bin", "offset": 0 }]
     }
   ]
 }
