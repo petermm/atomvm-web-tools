@@ -1,3 +1,4 @@
+import { connect } from "./connect";
 export class InstallButton extends HTMLElement {
     connectedCallback() {
         if (this.renderRoot) {
@@ -15,8 +16,7 @@ export class InstallButton extends HTMLElement {
         const slot = document.createElement("slot");
         slot.addEventListener("click", async (ev) => {
             ev.preventDefault();
-            const mod = await import("./connect");
-            mod.connect(this);
+            connect(this);
         });
         slot.name = "activate";
         const button = document.createElement("button");
