@@ -1,5 +1,6 @@
 import type { FlashState } from "./const";
 import type { EwtInstallDialog } from "./install-dialog";
+import { connect } from "./connect";
 
 export class InstallButton extends HTMLElement {
   public static isSupported = "serial" in navigator;
@@ -95,8 +96,7 @@ export class InstallButton extends HTMLElement {
 
     slot.addEventListener("click", async (ev) => {
       ev.preventDefault();
-      const mod = await import("./connect");
-      mod.connect(this);
+      connect(this);
     });
 
     slot.name = "activate";
