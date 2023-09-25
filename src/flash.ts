@@ -32,9 +32,9 @@ export const flash = async (
   var manifestProm = null;
   var manifestURL: string = "";
 
-  try{
+  try {
     manifestProm = JSON.parse(manifestPath);
-  } catch{
+  } catch {
     manifestURL = new URL(manifestPath, location.toString()).toString();
     manifestProm = fetch(manifestURL).then(
       (resp): Promise<Manifest> => resp.json()
@@ -118,7 +118,7 @@ export const flash = async (
   });
 
   const filePromises = build.parts.map(async (part) => {
-    if(firmwareBuffer.length == 0){
+    if (firmwareBuffer.length == 0) {
       //No firmware buffer provided, now download ...
       const url = new URL(part.path, manifestURL).toString();
       const resp = await fetch(url);

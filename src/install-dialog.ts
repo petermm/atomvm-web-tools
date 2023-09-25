@@ -775,14 +775,14 @@ export class EwtInstallDialog extends LitElement {
       // If local file upload via browser is used, we already provide a manifest as a JSON string and not a URL to it
       this._manifest = JSON.parse(this.manifestPath);
     } catch {
-        // Standard procedure - download manifest.json with provided URL
-        try {
-          this._manifest = await downloadManifest(this.manifestPath);
-        } catch (err: any) {
-          this._state = "ERROR";
-          this._error = "Failed to download manifest";
-          return;
-        }
+      // Standard procedure - download manifest.json with provided URL
+      try {
+        this._manifest = await downloadManifest(this.manifestPath);
+      } catch (err: any) {
+        this._state = "ERROR";
+        this._error = "Failed to download manifest";
+        return;
+      }
     }
 
     if (this._manifest.new_install_improv_wait_time === 0) {
@@ -834,16 +834,17 @@ export class EwtInstallDialog extends LitElement {
     }
     this._client = undefined;
 
-    if(this.firmwareFile != undefined){
+    if (this.firmwareFile != undefined) {
       // If a uploaded File was provided -> create Uint8Array of content
-      new Blob([this.firmwareFile]).arrayBuffer().then(b => this._flashFilebuffer(b as Uint8Array));
-    }
-    else{
+      new Blob([this.firmwareFile])
+        .arrayBuffer()
+        .then((b) => this._flashFilebuffer(b as Uint8Array));
+    } else {
       // Use "standard way" with URL to manifest and firmware binary
       flash(
         (state) => {
           this._installState = state;
-  
+
           if (state.state === FlashStateType.FINISHED) {
             sleep(100)
               .then(() => this._initialize(true))
@@ -859,7 +860,7 @@ export class EwtInstallDialog extends LitElement {
     }
   }
 
-  async _flashFilebuffer(fileBuffer: Uint8Array){
+  async _flashFilebuffer(fileBuffer: Uint8Array) {
     flash(
       (state) => {
         this._installState = state;
