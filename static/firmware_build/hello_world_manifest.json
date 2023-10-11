@@ -1,5 +1,5 @@
 {
-  "name": "AtomVM",
+  "name": "AtomVM Hello World!",
   "version": "v0.6.0-alpha.1",
   "builds": [
     {
@@ -8,6 +8,10 @@
         {
           "path": "AtomVM-esp32-v0.6.0-alpha.1.img",
           "offset": 4096
+        },
+        {
+          "path": "my_project.avm",
+          "offset": 2162688
         }
       ]
     },
@@ -17,6 +21,10 @@
         {
           "path": "AtomVM-esp32c3-v0.6.0-alpha.1.img",
           "offset": 0
+        },
+        {
+          "path": "my_project.avm",
+          "offset": 2162688
         }
       ]
     },
@@ -26,6 +34,10 @@
         {
           "path": "AtomVM-esp32s3-v0.6.0-alpha.1.img",
           "offset": 0
+        },
+        {
+          "path": "my_project.avm",
+          "offset": 2162688
         }
       ]
     },
@@ -35,6 +47,10 @@
         {
           "path": "AtomVM-esp32s2-v0.6.0-alpha.1.img",
           "offset": 0
+        },
+        {
+          "path": "my_project.avm",
+          "offset": 2162688
         }
       ]
     }
