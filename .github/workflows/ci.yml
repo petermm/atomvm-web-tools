@@ -17,6 +17,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm ci
+      - run: yarn install --frozen-lockfile
       - run: script/build
       - run: npm exec -- prettier --check src
