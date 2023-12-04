@@ -1,6 +1,6 @@
 # ESP Web Tools
 
-Allow flashing ESPHome or other ESP-based firmwares via the browser. Will automatically detect the board type and select a supported firmware. [See website for full documentation.](https://esphome.github.io/esp-web-tools/)
+Allow flashing Tasmota or other ESP-based firmwares via the browser. Will automatically detect the board type and select a supported firmware. [See website for full documentation.](https://esphome.github.io/esp-web-tools/)
 
 ```html
 <esp-web-install-button
@@ -12,50 +12,57 @@ Example manifest:
 
 ```json
 {
-  "name": "ESPHome",
-  "version": "2021.10.3",
-  "home_assistant_domain": "esphome",
-  "funding_url": "https://esphome.io/guides/supporters.html",
+  "name": "Tasmota",
+  "new_install_prompt_erase": true,
+  "funding_url": "https://paypal.me/tasmota",
+  "new_install_improv_wait_time": 10,
   "builds": [
     {
       "chipFamily": "ESP32",
+      "improv": true,
       "parts": [
-        { "path": "bootloader_dout_40m.bin", "offset": 4096 },
-        { "path": "partitions.bin", "offset": 32768 },
-        { "path": "boot_app0.bin", "offset": 57344 },
-        { "path": "esp32.bin", "offset": 65536 }
+        { "path": "../firmware/tasmota32/tasmota32.factory.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-C2",
+      "improv": true,
+      "parts": [
+        { "path": "../firmware/tasmota32/tasmota32c2-arduino30.factory.bin", "offset": 0 }
       ]
     },
     {
       "chipFamily": "ESP32-C3",
+      "improv": true,
       "parts": [
-        { "path": "bootloader_dout_40m.bin", "offset": 0 },
-        { "path": "partitions.bin", "offset": 32768 },
-        { "path": "boot_app0.bin", "offset": 57344 },
-        { "path": "esp32-c3.bin", "offset": 65536 }
+        { "path": "../firmware/tasmota32/tasmota32c3.factory.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-C6",
+      "improv": true,
+      "parts": [
+        { "path": "../firmware/tasmota32/tasmota32c6cdc-arduino30.factory.bin", "offset": 0 }
       ]
     },
     {
       "chipFamily": "ESP32-S2",
+      "improv": true,
       "parts": [
-        { "path": "bootloader_dout_40m.bin", "offset": 4096 },
-        { "path": "partitions.bin", "offset": 32768 },
-        { "path": "boot_app0.bin", "offset": 57344 },
-        { "path": "esp32-s2.bin", "offset": 65536 }
+        { "path": "../firmware/tasmota32/tasmota32s2.factory.bin", "offset": 0 }
       ]
     },
     {
       "chipFamily": "ESP32-S3",
+      "improv": true,
       "parts": [
-        { "path": "bootloader_dout_40m.bin", "offset": 4096 },
-        { "path": "partitions.bin", "offset": 32768 },
-        { "path": "boot_app0.bin", "offset": 57344 },
-        { "path": "esp32-s3.bin", "offset": 65536 }
+        { "path": "../firmware/tasmota32/tasmota32s3.factory.bin", "offset": 0 }
       ]
     },
     {
       "chipFamily": "ESP8266",
-      "parts": [{ "path": "esp8266.bin", "offset": 0 }]
+      "improv": true,
+      "parts": [{ "path": "../firmware/tasmota/tasmota.bin", "offset": 0 }]
     }
   ]
 }
