@@ -1,7 +1,8 @@
 name: Release Drafter
 
 on:
-  workflow_dispatch:
+  release:
+    types: [released]
 
 jobs:
   update_release_draft:
