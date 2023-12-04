@@ -4,7 +4,7 @@ Allow flashing Tasmota or other ESP-based firmwares via the browser. Will automa
 
 ```html
 <esp-web-install-button
-  manifest="firmware_esphome/manifest.json"
+  manifest="firmware/manifest.json"
 ></esp-web-install-button>
 ```
 
