@@ -61,7 +61,7 @@ class EwtNoPortPickedDialog extends LitElement {
               <li>
                 CP2102 drivers:
                 <a
-                  href="https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers"
+                  href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers"
                   target="_blank"
                   rel="noopener"
                   >Windows & Mac</a
@@ -102,6 +102,15 @@ class EwtNoPortPickedDialog extends LitElement {
                 (download via blue button with ${cloudDownload} icon)
               </li>
             </ul>
+          </li>
+          <li>
+            If you are using a Linux flavor, add your username to the dialout
+            group so you have the appropriate permissions on the device.
+            <ul>
+              <code>sudo usermod -a -G dialout YourUserName</code>
+            </ul>
+              You may need to logout & back in or reboot to activate the
+              new group access.
           </li>
         </ol>
         ${this.doTryAgain
