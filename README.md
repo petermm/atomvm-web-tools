@@ -1,6 +1,6 @@
 # ESP Web Tools
 
-Allow flashing Tasmota or other ESP-based firmwares via the browser. Will automatically detect the board type and select a supported firmware. [See website for full documentation.](https://esphome.github.io/esp-web-tools/)
+Allow flashing Tasmota or other ESP-based firmwares via the browser. Will automatically detect the board type and select a supported firmware. [See website for full documentation.](https://jason2866.github.io/esp-web-tools/))
 
 ```html
 <esp-web-install-button
