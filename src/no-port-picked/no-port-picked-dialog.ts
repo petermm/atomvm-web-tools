@@ -109,8 +109,8 @@ class EwtNoPortPickedDialog extends LitElement {
             <ul>
               <code>sudo usermod -a -G dialout YourUserName</code>
             </ul>
-              You may need to logout & back in or reboot to activate the
-              new group access.
+            You may need to logout & back in or reboot to activate the new group
+            access.
           </li>
         </ol>
         ${this.doTryAgain
