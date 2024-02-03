@@ -5,9 +5,9 @@ name: CI
 
 on:
   push:
-    branches: [v814]
+    branches: [v815]
   pull_request:
-    branches: [v814]
+    branches: [v815]
 
 jobs:
   build:
