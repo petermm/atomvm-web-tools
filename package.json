@@ -31,6 +31,6 @@
     "improv-wifi-serial-sdk": "^2.5.0",
     "lit": "^2.7.5",
     "tasmota-webserial-esptool": "^6.1.2",
-    "tslib": "^2.5.3"
+    "tslib": "^2.6.2"
   }
 }
