@@ -17,15 +17,14 @@ jobs:
       - name: Remove old files and folders
         run: |
           rm -rf yarn.lock
+          rm -rf package-lock.json
           rm -rf dist
       - name: install node v20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install Yarn with NPM
-        run: npm install -g yarn
-      - name: yarn install
-        run: yarn install
+      - name: Install npm
+        run: npm install
       - name: Prettier
         run: npm exec -- prettier --write src
       - name: Compile TypeScript
