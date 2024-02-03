@@ -5,7 +5,9 @@ name: CI
 
 on:
   push:
+    branches: [v814]
   pull_request:
+    branches: [v814]
 
 jobs:
   build:
@@ -17,6 +19,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: yarn install
+      - run: npm install
       - run: script/build
       - run: npm exec -- prettier --check src
