@@ -15,7 +15,7 @@ export const flash = async (
   logger: Logger,
   manifestPath: string,
   eraseFirst: boolean,
-  firmwareBuffer: Uint8Array
+  firmwareBuffer: Uint8Array,
 ) => {
   let manifest: Manifest;
   let build: Build | undefined;
@@ -37,7 +37,7 @@ export const flash = async (
   } catch {
     manifestURL = new URL(manifestPath, location.toString()).toString();
     manifestProm = fetch(manifestURL).then(
-      (resp): Promise<Manifest> => resp.json()
+      (resp): Promise<Manifest> => resp.json(),
     );
   }
 
@@ -124,7 +124,7 @@ export const flash = async (
       const resp = await fetch(url);
       if (!resp.ok) {
         throw new Error(
-          `Downlading firmware ${part.path} failed: ${resp.status}`
+          `Downlading firmware ${part.path} failed: ${resp.status}`,
         );
       }
       return resp.arrayBuffer();
@@ -199,7 +199,7 @@ export const flash = async (
         file,
         (bytesWritten: number) => {
           const newPct = Math.floor(
-            ((totalWritten + bytesWritten) / totalSize) * 100
+            ((totalWritten + bytesWritten) / totalSize) * 100,
           );
           if (newPct === lastPct) {
             return;
@@ -216,7 +216,7 @@ export const flash = async (
           });
         },
         part.offset,
-        true
+        true,
       );
     } catch (err: any) {
       fireStateEvent({

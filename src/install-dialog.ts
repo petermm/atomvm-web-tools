@@ -42,7 +42,7 @@ export class EwtInstallDialog extends LitElement {
   public overrides?: {
     checkSameFirmware?: (
       manifest: Manifest,
-      deviceImprov: ImprovSerial["info"]
+      deviceImprov: ImprovSerial["info"],
     ) => boolean;
   };
 
@@ -332,7 +332,7 @@ export class EwtInstallDialog extends LitElement {
         this._renderProgress(
           this._ssids === undefined
             ? "Scanning for networks"
-            : "Trying to connect"
+            : "Trying to connect",
         ),
         true,
       ];
@@ -453,7 +453,7 @@ export class EwtInstallDialog extends LitElement {
                     >
                       ${info.name}
                     </ewt-list-item>
-                  `
+                  `,
                 )}
                 <ewt-list-item
                   .selected=${this._selectedSsid === -1}
@@ -613,7 +613,7 @@ export class EwtInstallDialog extends LitElement {
             : "2 minutes"}.<br />
           Keep this page visible to prevent slow down
         `,
-        percentage
+        percentage,
       );
       hideActions = true;
     } else if (this._installState.state === FlashStateType.FINISHED) {
@@ -675,7 +675,7 @@ export class EwtInstallDialog extends LitElement {
         @click=${() => {
           textDownload(
             this.shadowRoot!.querySelector("ewt-console")!.logs(),
-            `esp-web-tools-logs.txt`
+            `esp-web-tools-logs.txt`,
           );
 
           this.shadowRoot!.querySelector("ewt-console")!.reset();
@@ -716,7 +716,7 @@ export class EwtInstallDialog extends LitElement {
           this._busy = false;
           this._ssids = null;
           this._selectedSsid = -1;
-        }
+        },
       );
     } else {
       // Reset this value if we leave provisioning.
@@ -756,7 +756,7 @@ export class EwtInstallDialog extends LitElement {
 
   private _focusFormElement(selector = "ewt-textfield, ewt-select") {
     const formEl = this.shadowRoot!.querySelector(
-      selector
+      selector,
     ) as LitElement | null;
     if (formEl) {
       formEl.updateComplete.then(() => setTimeout(() => formEl.focus(), 100));
@@ -801,8 +801,8 @@ export class EwtInstallDialog extends LitElement {
       const timeout = !justInstalled
         ? 1000
         : this._manifest.new_install_improv_wait_time !== undefined
-        ? this._manifest.new_install_improv_wait_time * 1000
-        : 10000;
+          ? this._manifest.new_install_improv_wait_time * 1000
+          : 10000;
       this._info = await client.initialize(timeout);
       this._client = client;
       client.addEventListener("disconnect", this._handleDisconnect);
@@ -855,7 +855,7 @@ export class EwtInstallDialog extends LitElement {
         this.logger,
         this.manifestPath,
         this._installErase,
-        new Uint8Array(0)
+        new Uint8Array(0),
       );
     }
   }
@@ -875,7 +875,7 @@ export class EwtInstallDialog extends LitElement {
       this.logger,
       this.manifestPath,
       this._installErase,
-      fileBuffer
+      fileBuffer,
     );
   }
 
@@ -887,13 +887,13 @@ export class EwtInstallDialog extends LitElement {
       this._selectedSsid === -1
         ? (
             this.shadowRoot!.querySelector(
-              "ewt-textfield[name=ssid]"
+              "ewt-textfield[name=ssid]",
             ) as EwtTextfield
           ).value
         : this._ssids![this._selectedSsid].name;
     const password = (
       this.shadowRoot!.querySelector(
-        "ewt-textfield[name=password]"
+        "ewt-textfield[name=password]",
       ) as EwtTextfield
     ).value;
     try {
@@ -926,8 +926,8 @@ export class EwtInstallDialog extends LitElement {
     return !this._info
       ? false
       : this.overrides?.checkSameFirmware
-      ? this.overrides.checkSameFirmware(this._manifest, this._info)
-      : this._info.firmware === this._manifest.name;
+        ? this.overrides.checkSameFirmware(this._manifest, this._info)
+        : this._info.firmware === this._manifest.name;
   }
 
   /**

@@ -12,7 +12,7 @@ import {
 import type { BaseFlashState } from "../const";
 
 export const getChipFamilyName = (
-  esploader: ESPLoader
+  esploader: ESPLoader,
 ): NonNullable<BaseFlashState["chipFamily"]> => {
   switch (esploader.chipFamily) {
     case CHIP_FAMILY_ESP32:
