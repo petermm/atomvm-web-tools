@@ -6,6 +6,7 @@ import {
   CHIP_FAMILY_ESP32C3,
   CHIP_FAMILY_ESP32C6,
   CHIP_FAMILY_ESP32H2,
+  CHIP_FAMILY_ESP32P4,
   CHIP_FAMILY_ESP8266,
   ESPLoader,
 } from "tasmota-webserial-esptool";
@@ -28,6 +29,8 @@ export const getChipFamilyName = (
     case CHIP_FAMILY_ESP32C6:
       return "ESP32-C6";
     case CHIP_FAMILY_ESP32H2:
+      return "ESP32-H2";
+    case CHIP_FAMILY_ESP32P4:
       return "ESP32-H2";
     case CHIP_FAMILY_ESP8266:
       return "ESP8266";
