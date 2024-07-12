@@ -31,7 +31,7 @@ export const getChipFamilyName = (
     case CHIP_FAMILY_ESP32H2:
       return "ESP32-H2";
     case CHIP_FAMILY_ESP32P4:
-      return "ESP32-H2";
+      return "ESP32-P4";
     case CHIP_FAMILY_ESP8266:
       return "ESP8266";
     default:
