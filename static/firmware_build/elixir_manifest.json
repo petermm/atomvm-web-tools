@@ -6,7 +6,7 @@
       "chipFamily": "ESP32",
       "parts": [
         {
-          "path": "AtomVM-esp32-v0.6.202410121.img",
+          "path": "AtomVM-esp32-elixir-v0.6.202410121.img",
           "offset": 4096
         }
       ]
@@ -15,7 +15,7 @@
       "chipFamily": "ESP32-C3",
       "parts": [
         {
-          "path": "AtomVM-esp32c3-v0.6.202410121.img",
+          "path": "AtomVM-esp32c3-elixir-v0.6.202410121.img",
           "offset": 0
         }
       ]
@@ -24,7 +24,7 @@
       "chipFamily": "ESP32-C2",
       "parts": [
         {
-          "path": "AtomVM-esp32c2-v0.6.202410121.img",
+          "path": "AtomVM-esp32c2-elixir-v0.6.202410121.img",
           "offset": 0
         }
       ]
@@ -33,7 +33,7 @@
       "chipFamily": "ESP32-S3",
       "parts": [
         {
-          "path": "AtomVM-esp32s3-v0.6.202410121.img",
+          "path": "AtomVM-esp32s3-elixir-v0.6.202410121.img",
           "offset": 0
         }
       ]
@@ -42,7 +42,7 @@
       "chipFamily": "ESP32-S2",
       "parts": [
         {
-          "path": "AtomVM-esp32s2-v0.6.202410121.img",
+          "path": "AtomVM-esp32s2-elixir-v0.6.202410121.img",
           "offset": 0
         }
       ]
@@ -51,7 +51,7 @@
       "chipFamily": "ESP32-H2",
       "parts": [
         {
-          "path": "AtomVM-esp32h2-v0.6.202410121.img",
+          "path": "AtomVM-esp32h2-elixir-v0.6.202410121.img",
           "offset": 0
         }
       ]
@@ -60,7 +60,7 @@
       "chipFamily": "ESP32-C6",
       "parts": [
         {
-          "path": "AtomVM-esp32c6-v0.6.202410121.img",
+          "path": "AtomVM-esp32c6-elixir-v0.6.202410121.img",
           "offset": 0
         }
       ]

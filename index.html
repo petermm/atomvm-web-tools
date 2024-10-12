@@ -156,12 +156,21 @@
         <h2 id="demo">Install AtomVM runtime</h2>
         <p>
             This will install
-            <a href="https://www.atomvm.net">AtomVM v0.6.3</a>. To get started, connect an ESP32
+            <a href="https://www.atomvm.net">AtomVM v0.6.5rc</a>. To get started, connect an ESP32
             device to your computer and hit the install button:
         </p>
         <esp-web-install-button manifest="static/firmware_build/manifest.json">
             <button slot="activate" style="padding: 8px 28px; font-size: 16px; font-weight: 700;">Install
                 AtomVM</button>
+            <i slot="unsupported">
+                The Web Flasher is not available because your browser does not support Web
+                Serial. Open this page in Google Chrome or Microsoft Edge instead<span class="not-supported-i hidden">
+                    (but not on your iOS device)</span>.
+            </i>
+        </esp-web-install-button>
+        <esp-web-install-button manifest="static/firmware_build/elixir_manifest.json">
+            <button slot="activate" style="padding: 8px 28px; font-size: 16px; font-weight: 700;">Install
+                AtomVM w Elixir</button>
             <i slot="unsupported">
                 The Web Flasher is not available because your browser does not support Web
                 Serial. Open this page in Google Chrome or Microsoft Edge instead<span class="not-supported-i hidden">
