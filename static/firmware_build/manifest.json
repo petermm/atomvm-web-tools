@@ -43,7 +43,7 @@
       "parts": [
         {
           "path": "AtomVM-esp32s2-v0.6.202410121.img",
-          "offset": 0
+          "offset": 4096
         }
       ]
     },
