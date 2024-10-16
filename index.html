@@ -150,7 +150,7 @@
         </p>
         <ul>
             <li>Install &amp; update AtomVM runtime</li>
-            <li>Access logs and send terminal commands</li>
+            <li>Access logs</li>
         </ul>
 
         <h2 id="demo">Install AtomVM runtime</h2>
@@ -171,17 +171,19 @@
         <esp-web-install-button manifest="static/firmware_build/elixir_manifest.json">
             <button slot="activate" style="padding: 8px 28px; font-size: 16px; font-weight: 700;">Install
                 AtomVM w Elixir</button>
-            <i slot="unsupported">
-                The Web Flasher is not available because your browser does not support Web
-                Serial. Open this page in Google Chrome or Microsoft Edge instead<span class="not-supported-i hidden">
-                    (but not on your iOS device)</span>.
-            </i>
         </esp-web-install-button>
-        <p>
-            Once completed you are then ready to install/flash and run your own code using <code>rebar3 atomvm
-                esp32_flash</code> or for elixir
-            <code>mix atomvm.esp32.flash</code> in your project.
+        <h3 id="dev_mode">Dev mode</h3>
+        <p>You can access the dev mode by connecting to the 'AtomVM-ESP32' access point, password is 'esp32default'.<br>
+            Dev mode currently allows access to wifi configuration: on <a href="http://192.168.4.1:8080">192.168.4.1:8080</a> or you can make a shell connection to the ALISP console on 192.168.4.1:2323.
         </p>
+        <h3 id="flash">Flash it with your project</h3>
+        <p>
+            Once completed you are then ready to install/flash and run your own code using:<br>
+            <code>rebar3 atomvm esp32_flash</code> see: <a href="https://github.com/atomvm/atomvm_rebar3_plugin?tab=readme-ov-file#quick-start">atomvm_rebar3_plugin</a><br>
+            or for <b>elixir</b>:<br>
+            <code>mix atomvm.esp32.flash</code> see: <a href="https://github.com/atomvm/exatomvm?tab=readme-ov-file#getting-started">ExAtomVM</a>
+        </p>
+        
         <h2 id="webserial">Web serial</h2>
         <p>
             You can use <a href="https://petermm.github.io/serial-terminal/">AtomVM Web Serial</a>. To connect to the serial output of your esp device afterwards.
