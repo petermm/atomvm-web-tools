@@ -1,6 +1,7 @@
 {
   "name": "AtomVM",
   "version": "v0.6.5",
+  "new_install_improv_wait_time": 0,
   "builds": [
     {
       "chipFamily": "ESP32",
