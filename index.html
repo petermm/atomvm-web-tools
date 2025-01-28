@@ -198,6 +198,17 @@
             href="https://github.com/Jason2866/esp-web-tools">/Jason2866/esp-web-tools</a>.<br>
         Source code: <a href="https://github.com/petermm/atomvm-web-tools">atomvm-web-tools</a>
     </div>
+
+
+    <esp-web-install-button manifest="https://petermm.github.io/atomvm_flasher/assets/v0.6.5/release-elixir.json">
+        <button slot="activate" style="padding: 8px 28px; font-size: 16px; font-weight: 700;">Test cross site Button</button>
+        <i slot="unsupported">
+            The Web Flasher is not available because your browser does not support Web
+            Serial. Open this page in Google Chrome or Microsoft Edge instead<span class="not-supported-i hidden">
+                (but not on your iOS device)</span>.
+        </i>
+    </esp-web-install-button>
+
     </div>
     <script>
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
