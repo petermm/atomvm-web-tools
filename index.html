@@ -172,9 +172,16 @@
             <button slot="activate" style="padding: 8px 28px; font-size: 16px; font-weight: 700;">Install
                 AtomVM w Elixir</button>
         </esp-web-install-button>
-        <h3 id="dev_mode">Dev mode</h3>
-        <p>You can access the dev mode by connecting to the 'AtomVM-ESP32' access point, password is 'esp32default'.<br>
-            Dev mode currently allows access to wifi configuration: on <a href="http://192.168.4.1:8080">192.168.4.1:8080</a> or you can make a shell connection to the ALISP console on 192.168.4.1:2323.
+        <h3 id="dev_mode">Dev demo mode</h3>
+        <p>You can access the dev demo mode by connecting to the 'AtomVM-ESP32' access point, password is 'esp32default'.<br>
+            Dev demo mode currently allows access to wifi configuration: on <a href="http://192.168.4.1:8080">192.168.4.1:8080</a> or you can make a shell connection to the ALISP console on 192.168.4.1:2323.
+        </p>
+        <h3 id="ignote">Creating your Elixir project with Igniter:</h3>
+        <p>
+            You can quickly create an Elixir with igniter:<br>
+            <b>Install Igniter</b>:<br>
+            <code>mix atomvm.esp32.flash</code> see: <a href="https://github.com/ash-project/igniter">Igniter</a><br>
+            <code>mix igniter.new my_project --install exatomvm@github:petermm/exatomvm && cd my_project</code> see: <a href="https://github.com/atomvm/atomvm_rebar3_plugin?tab=readme-ov-file#quick-start">atomvm_rebar3_plugin</a><br>
         </p>
         <h3 id="flash">Flash it with your project</h3>
         <p>
