@@ -104,6 +104,9 @@ export class EwtInstallDialog extends LitElement {
   // Track if device is using USB-JTAG or USB-OTG (not external serial chip)
   @state() private _isUsbJtagOrOtgDevice = false;
 
+  // Track if device is using TinyUSB CDC (firmware-mode serial, no esptool protocol)
+  @state() private _isTinyUsbCdcDevice = false;
+
   // Track action to perform after port reconnection (for USB-JTAG/OTG devices)
   private _openConsoleAfterReconnect = false;
   private _visitDeviceAfterReconnect = false;
@@ -112,6 +115,14 @@ export class EwtInstallDialog extends LitElement {
 
   // Ensure stub is initialized (called before any operation that needs it)
   private async _ensureStub(): Promise<any> {
+    if (this._isTinyUsbCdcDevice) {
+      throw new Error(
+        "This device is using TinyUSB CDC (VID 0x303a, PID 0x4001) which does not support " +
+          "the ESP bootloader protocol. To flash firmware, reboot the device into ROM bootloader mode " +
+          "and reconnect.",
+      );
+    }
+
     if (this._espStub && this._espStub.IS_STUB) {
       this.logger.log(
         `Existing stub: IS_STUB=${this._espStub.IS_STUB}, chipFamily=${getChipFamilyName(this._espStub)}`,
@@ -229,6 +240,19 @@ export class EwtInstallDialog extends LitElement {
     const result = !isUsbJtag; // WebUSB but NOT USB-JTAG = external serial
     this.logger.log(`WebUSB with external serial: ${result ? "YES" : "NO"}`);
     return result;
+  }
+
+  // Helper to check if device is using TinyUSB CDC (firmware-mode serial, not esptool)
+  // TinyUSB CDC ACM uses VID 0x303a (Espressif) with PID 0x4001
+  // Unlike USB-JTAG/Serial (PID 0x1001) or ESP32-S2 native USB (PID 0x0002),
+  // TinyUSB CDC is a software USB serial that does NOT speak the esptool protocol.
+  private _isTinyUsbCdc(): boolean {
+    try {
+      const info = this._port?.getInfo?.();
+      return info?.usbVendorId === 0x303a && info?.usbProductId === 0x4001;
+    } catch {
+      return false;
+    }
   }
 
   // Helper to release reader/writer locks (used by multiple methods)
@@ -1563,7 +1587,11 @@ export class EwtInstallDialog extends LitElement {
       <ewt-console
         .port=${this._port}
         .logger=${this.logger}
-        .onReset=${async () => await this.esploader.hardReset(false)}
+        .onReset=${this._isTinyUsbCdcDevice
+          ? async () => {
+              this.logger.log("Reset is not supported for TinyUSB CDC devices. Please reset the device manually.");
+            }
+          : async () => await this.esploader.hardReset(false)}
       ></ewt-console>
       <ewt-button
         slot="primaryAction"
@@ -1974,6 +2002,27 @@ export class EwtInstallDialog extends LitElement {
       }
     }
 
+    // Detect TinyUSB CDC devices (VID 0x303a, PID 0x4001) early.
+    // These are firmware-mode USB serial ports that do NOT speak esptool protocol.
+    // Skip bootloader detection and esptool sync, but still test Improv (it's a serial protocol).
+    if (this._isTinyUsbCdc()) {
+      this.logger.log(
+        "TinyUSB CDC device detected (VID 0x303a, PID 0x4001) - firmware-mode serial port",
+      );
+      this._isTinyUsbCdcDevice = true;
+      this._isUsbJtagOrOtgDevice = false;
+      this.esploader.chipFamily = null;
+
+      // Improv works over raw serial — no esptool needed.
+      // Skip reset since we can't do hardReset on TinyUSB CDC.
+      const timeout =
+        this._manifest.new_install_improv_wait_time !== undefined
+          ? this._manifest.new_install_improv_wait_time * 1000
+          : 10000;
+      await this._testImprov(timeout, true);
+      return;
+    }
+
     // Skip Improv if requested (e.g., when returning from console or filesystem manager)
     if (skipImprov) {
       this.logger.log("Skipping Improv test (not needed for this operation)");
@@ -2021,7 +2070,10 @@ export class EwtInstallDialog extends LitElement {
 
     // Check if device is in bootloader mode
     // If yes, switch to firmware mode first (needed for Improv)
-    const inBootloaderMode = this.esploader.chipFamily !== null;
+    // Note: chipFamily is undefined before initialize() is called, null after explicit reset
+    const inBootloaderMode =
+      this.esploader.chipFamily !== null &&
+      this.esploader.chipFamily !== undefined;
 
     if (inBootloaderMode) {
       this.logger.log(
@@ -2149,7 +2201,18 @@ export class EwtInstallDialog extends LitElement {
       | "wifi"
       | null = null,
   ): Promise<boolean> {
-    const inBootloaderMode = this.esploader.chipFamily !== null;
+    // TinyUSB CDC devices are always in firmware mode — no esptool, no reset needed
+    if (this._isTinyUsbCdcDevice) {
+      this.logger.log(
+        "TinyUSB CDC device - already in firmware mode, skipping switch",
+      );
+      await this._releaseReaderWriter();
+      return false;
+    }
+
+    const inBootloaderMode =
+      this.esploader.chipFamily !== null &&
+      this.esploader.chipFamily !== undefined;
 
     if (!inBootloaderMode) {
       this.logger.log("Device already in firmware mode");
