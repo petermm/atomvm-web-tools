@@ -27,6 +27,7 @@ import { sleep } from "./util/sleep";
 import { downloadManifest } from "./util/manifest";
 import { dialogStyles } from "./styles";
 import { parsePartitionTable, type Partition } from "./partition.js";
+import { parseNvsPartition, type NvsEntryInfo } from "./nvsParser";
 import { detectFilesystemType } from "./util/partition.js";
 import { getChipFamilyName } from "./util/chip-family-name";
 
@@ -92,6 +93,10 @@ export class EwtInstallDialog extends LitElement {
   @state() private _partitions?: Partition[];
   @state() private _selectedPartition?: Partition;
   @state() private _espStub?: any;
+
+  // NVS support
+  @state() private _nvsResult?: import("./nvsParser").NvsParseResult;
+  @state() private _nvsError?: string;
 
   // Track if Improv was already checked (to avoid repeated attempts)
   private _improvChecked = false;
@@ -1006,6 +1011,7 @@ export class EwtInstallDialog extends LitElement {
               }
 
               this._state = "NVS";
+              this._readNvs();
             }}
           ></ewt-button>
         </div>
@@ -1197,6 +1203,7 @@ export class EwtInstallDialog extends LitElement {
               }
 
               this._state = "NVS";
+              this._readNvs();
             }}
           ></ewt-button>
         </div>
@@ -1822,34 +1829,154 @@ export class EwtInstallDialog extends LitElement {
     const heading = "NVS Storage";
     const hideActions = false;
 
-    const content = html`
-      <ewt-page-message
-        .icon=${"🗄️"}
-        label="NVS management coming soon"
-      ></ewt-page-message>
-      <ewt-button
-        slot="primaryAction"
-        label="Back"
-        @click=${async () => {
-          try {
-            if (this._isUsbJtagOrOtgDevice) {
-              this._state = "DASHBOARD";
-              await this._initialize();
-            } else {
-              this._state = "DASHBOARD";
-              this._busy = false;
-            }
-          } catch (err: any) {
-            this.logger.error(`NVS Back error: ${err.message}`);
-            this._state = "ERROR";
-            this._error = `Failed to return to dashboard: ${err.message}`;
-            this._busy = false;
-          }
-        }}
-      ></ewt-button>
-    `;
+    let content: TemplateResult;
+
+    if (this._busy) {
+      content = this._renderProgress("Reading NVS partition...");
+    } else if (this._nvsError) {
+      content = html`
+        <ewt-page-message
+          .icon=${ERROR_ICON}
+          label=${this._nvsError}
+        ></ewt-page-message>
+        <ewt-button
+          slot="primaryAction"
+          label="Back"
+          @click=${() => this._nvsBack()}
+        ></ewt-button>
+      `;
+    } else if (this._nvsResult) {
+      const result = this._nvsResult;
+      const grouped = new Map<string, NvsEntryInfo[]>();
+      for (const entry of result.entries) {
+        const ns = entry.namespace;
+        if (!grouped.has(ns)) grouped.set(ns, []);
+        grouped.get(ns)!.push(entry);
+      }
+
+      content = html`
+        ${result.warnings.length
+          ? html`<div class="nvs-warnings">
+              ${result.warnings.map((w: string) => html`<div class="nvs-warning">⚠️ ${w}</div>`)}
+            </div>`
+          : ""}
+        ${result.errors.length
+          ? html`<div class="nvs-errors">
+              ${result.errors.map((e: string) => html`<div class="nvs-error">${ERROR_ICON} ${e}</div>`)}
+            </div>`
+          : ""}
+        <div class="nvs-summary">
+          Found ${result.entries.length} entries in
+          ${result.namespaces.length} namespace(s) (NVS v${result.version})
+        </div>
+        <div class="nvs-list">
+          <table class="partition-table">
+            <thead>
+              <tr>
+                <th>Namespace</th>
+                <th>Key</th>
+                <th>Type</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${result.entries.map(
+                (entry: NvsEntryInfo) => html`
+                  <tr>
+                    <td>${entry.namespace}</td>
+                    <td>${entry.key}</td>
+                    <td>${entry.type}</td>
+                    <td class="nvs-value">${entry.valuePreview}</td>
+                  </tr>
+                `,
+              )}
+            </tbody>
+          </table>
+        </div>
+        <ewt-button
+          slot="primaryAction"
+          label="Back"
+          @click=${() => this._nvsBack()}
+        ></ewt-button>
+      `;
+    } else {
+      content = html`
+        <ewt-page-message
+          .icon=${ERROR_ICON}
+          label="No NVS data loaded"
+        ></ewt-page-message>
+        <ewt-button
+          slot="primaryAction"
+          label="Back"
+          @click=${() => this._nvsBack()}
+        ></ewt-button>
+      `;
+    }
 
     return [heading, content, hideActions];
+  }
+
+  private async _nvsBack() {
+    try {
+      if (this._isUsbJtagOrOtgDevice) {
+        this._state = "DASHBOARD";
+        await this._initialize();
+      } else {
+        this._state = "DASHBOARD";
+        this._busy = false;
+      }
+    } catch (err: any) {
+      this.logger.error(`NVS Back error: ${err.message}`);
+      this._state = "ERROR";
+      this._error = `Failed to return to dashboard: ${err.message}`;
+      this._busy = false;
+    }
+  }
+
+  private async _readNvs() {
+    this._busy = true;
+    this._nvsResult = undefined;
+    this._nvsError = undefined;
+
+    try {
+      const espStub = await this._ensureStub();
+      await sleep(100);
+
+      this.logger.log("Reading partition table to find NVS partition...");
+      const ptData = await espStub.readFlash(0x8000, 0x1000);
+      const partitions = parsePartitionTable(ptData);
+
+      const nvsPartition = partitions.find(
+        (p: Partition) => p.type === 0x01 && p.subtype === 0x02,
+      );
+
+      if (!nvsPartition) {
+        this._nvsError = "No NVS partition found in partition table";
+        return;
+      }
+
+      this.logger.log(
+        `Found NVS partition "${nvsPartition.name}" at 0x${nvsPartition.offset.toString(16)}, size ${nvsPartition.size} bytes`,
+      );
+
+      this.logger.log("Reading NVS flash data...");
+      const nvsData = await espStub.readFlash(
+        nvsPartition.offset,
+        nvsPartition.size,
+      );
+
+      this.logger.log("Parsing NVS data...");
+      const result = parseNvsPartition(new Uint8Array(nvsData));
+      this.logger.log(
+        `NVS parsed: ${result.entries.length} entries, ${result.namespaces.length} namespaces, v${result.version}`,
+      );
+      this._nvsResult = result;
+    } catch (e: any) {
+      this.logger.error(`Failed to read NVS: ${e.message || e}`);
+      this._nvsError = `Failed to read NVS: ${e.message || e}`;
+    } finally {
+      this._busy = false;
+    }
   }
 
   private async _readPartitionTable() {
@@ -3227,6 +3354,35 @@ export class EwtInstallDialog extends LitElement {
       }
       .partition-table tbody tr:hover {
         background-color: rgba(3, 169, 244, 0.1);
+      }
+      .nvs-list {
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      .nvs-summary {
+        padding: 8px 0;
+        font-size: 14px;
+        color: #666;
+      }
+      .nvs-value {
+        max-width: 240px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: monospace;
+        font-size: 12px;
+      }
+      .nvs-warnings,
+      .nvs-errors {
+        padding: 4px 0;
+      }
+      .nvs-warning {
+        color: #e65100;
+        font-size: 13px;
+      }
+      .nvs-error {
+        color: #c62828;
+        font-size: 13px;
       }
     `,
   ];
