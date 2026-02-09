@@ -3435,6 +3435,9 @@ export class EwtInstallDialog extends LitElement {
         width: calc(80vw - 48px);
         height: 80vh;
       }
+      :host([state="NVS"]) ewt-dialog {
+        --mdc-dialog-max-width: 90vw;
+      }
       :host([state="PARTITIONS"]) ewt-dialog {
         --mdc-dialog-max-width: 800px;
       }
