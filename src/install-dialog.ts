@@ -97,6 +97,8 @@ export class EwtInstallDialog extends LitElement {
   // NVS support
   @state() private _nvsResult?: import("./nvsParser").NvsParseResult;
   @state() private _nvsError?: string;
+  @state() private _nvsConfirmErase = false;
+  private _nvsPartition?: Partition;
 
   // Track if Improv was already checked (to avoid repeated attempts)
   private _improvChecked = false;
@@ -1893,6 +1895,35 @@ export class EwtInstallDialog extends LitElement {
             </tbody>
           </table>
         </div>
+        ${this._nvsConfirmErase
+          ? html`
+              <div class="nvs-erase-confirm">
+                <p>
+                  This will erase the entire NVS partition. All stored
+                  settings will be lost. Are you sure?
+                </p>
+                <ewt-button
+                  class="danger"
+                  label="Yes, Erase NVS"
+                  @click=${() => this._eraseNvs()}
+                ></ewt-button>
+                <ewt-button
+                  label="Cancel"
+                  @click=${() => {
+                    this._nvsConfirmErase = false;
+                  }}
+                ></ewt-button>
+              </div>
+            `
+          : html`
+              <ewt-button
+                class="danger"
+                label="Erase NVS Partition"
+                @click=${() => {
+                  this._nvsConfirmErase = true;
+                }}
+              ></ewt-button>
+            `}
         <ewt-button
           slot="primaryAction"
           label="Back"
@@ -1933,10 +1964,41 @@ export class EwtInstallDialog extends LitElement {
     }
   }
 
+  private async _eraseNvs() {
+    if (!this._nvsPartition) return;
+
+    this._busy = true;
+    this._nvsConfirmErase = false;
+
+    try {
+      const espStub = await this._ensureStub();
+      const { offset, size, name } = this._nvsPartition;
+
+      this.logger.log(
+        `Erasing NVS partition "${name}" at 0x${offset.toString(16)}, size ${size} bytes...`,
+      );
+
+      await espStub.eraseRegion(offset, size);
+
+      this.logger.log("NVS partition erased successfully.");
+      this._nvsResult = undefined;
+      this._nvsError = undefined;
+
+      await this._readNvs();
+    } catch (e: any) {
+      this.logger.error(`Failed to erase NVS: ${e.message || e}`);
+      this._nvsError = `Failed to erase NVS: ${e.message || e}`;
+      this._nvsResult = undefined;
+      this._busy = false;
+    }
+  }
+
   private async _readNvs() {
     this._busy = true;
     this._nvsResult = undefined;
     this._nvsError = undefined;
+    this._nvsConfirmErase = false;
+    this._nvsPartition = undefined;
 
     try {
       const espStub = await this._ensureStub();
@@ -1954,6 +2016,8 @@ export class EwtInstallDialog extends LitElement {
         this._nvsError = "No NVS partition found in partition table";
         return;
       }
+
+      this._nvsPartition = nvsPartition;
 
       this.logger.log(
         `Found NVS partition "${nvsPartition.name}" at 0x${nvsPartition.offset.toString(16)}, size ${nvsPartition.size} bytes`,
@@ -3383,6 +3447,17 @@ export class EwtInstallDialog extends LitElement {
       .nvs-error {
         color: #c62828;
         font-size: 13px;
+      }
+      .nvs-erase-confirm {
+        margin-top: 12px;
+        padding: 12px;
+        border: 1px solid #c62828;
+        border-radius: 4px;
+        background: #fff5f5;
+      }
+      .nvs-erase-confirm p {
+        margin: 0 0 12px;
+        color: #c62828;
       }
     `,
   ];
