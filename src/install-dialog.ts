@@ -67,6 +67,7 @@ export class EwtInstallDialog extends LitElement {
     | "LOGS"
     | "PARTITIONS"
     | "LITTLEFS"
+    | "NVS"
     | "REQUEST_PORT_SELECTION" = "DASHBOARD";
 
   @state() private _installErase = false;
@@ -560,6 +561,8 @@ export class EwtInstallDialog extends LitElement {
       [heading, content, hideActions] = this._renderPartitions();
     } else if (this._state === "LITTLEFS") {
       [heading, content, hideActions, allowClosing] = this._renderLittleFS();
+    } else if (this._state === "NVS") {
+      [heading, content, hideActions] = this._renderNvs();
     } else {
       // Fallback for unknown state
       this.logger.error(`Unknown state: ${this._state}`);
@@ -973,6 +976,39 @@ export class EwtInstallDialog extends LitElement {
             }}
           ></ewt-button>
         </div>
+        <div>
+          <ewt-button
+            ?disabled=${this._busy}
+            label="Manage NVS"
+            @click=${async () => {
+              if (this._client) {
+                try {
+                  await this._closeClientWithoutEvents(this._client);
+                } catch (e) {
+                  this.logger.log("Failed to close Improv client:", e);
+                }
+              }
+
+              this.logger.log(
+                "Preparing device for NVS operations (switching to bootloader mode)...",
+              );
+
+              try {
+                await this._prepareForFlashOperations();
+                await this._ensureStub();
+              } catch (err: any) {
+                this.logger.log(
+                  `Failed to prepare for NVS: ${err.message}`,
+                );
+                this._state = "ERROR";
+                this._error = `Failed to enter bootloader mode: ${err.message}`;
+                return;
+              }
+
+              this._state = "NVS";
+            }}
+          ></ewt-button>
+        </div>
         ${this._isSameFirmware && this._manifest.funding_url
           ? html`
               <div>
@@ -1127,6 +1163,40 @@ export class EwtInstallDialog extends LitElement {
 
               this._state = "PARTITIONS";
               this._readPartitionTable();
+            }}
+          ></ewt-button>
+        </div>
+
+        <div>
+          <ewt-button
+            label="Manage NVS"
+            ?disabled=${this._busy}
+            @click=${async () => {
+              if (this._client) {
+                try {
+                  await this._closeClientWithoutEvents(this._client);
+                } catch (e) {
+                  this.logger.log("Failed to close Improv client:", e);
+                }
+              }
+
+              this.logger.log(
+                "Preparing device for NVS operations (switching to bootloader mode)...",
+              );
+
+              try {
+                await this._prepareForFlashOperations();
+                await this._ensureStub();
+              } catch (err: any) {
+                this.logger.log(
+                  `Failed to prepare for NVS: ${err.message}`,
+                );
+                this._state = "ERROR";
+                this._error = `Failed to enter bootloader mode: ${err.message}`;
+                return;
+              }
+
+              this._state = "NVS";
             }}
           ></ewt-button>
         </div>
@@ -1746,6 +1816,40 @@ export class EwtInstallDialog extends LitElement {
     `;
 
     return [heading, content, hideActions, allowClosing];
+  }
+
+  _renderNvs(): [string | undefined, TemplateResult, boolean] {
+    const heading = "NVS Storage";
+    const hideActions = false;
+
+    const content = html`
+      <ewt-page-message
+        .icon=${"🗄️"}
+        label="NVS management coming soon"
+      ></ewt-page-message>
+      <ewt-button
+        slot="primaryAction"
+        label="Back"
+        @click=${async () => {
+          try {
+            if (this._isUsbJtagOrOtgDevice) {
+              this._state = "DASHBOARD";
+              await this._initialize();
+            } else {
+              this._state = "DASHBOARD";
+              this._busy = false;
+            }
+          } catch (err: any) {
+            this.logger.error(`NVS Back error: ${err.message}`);
+            this._state = "ERROR";
+            this._error = `Failed to return to dashboard: ${err.message}`;
+            this._busy = false;
+          }
+        }}
+      ></ewt-button>
+    `;
+
+    return [heading, content, hideActions];
   }
 
   private async _readPartitionTable() {
