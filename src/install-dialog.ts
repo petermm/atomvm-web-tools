@@ -98,6 +98,7 @@ export class EwtInstallDialog extends LitElement {
   @state() private _nvsResult?: import("./nvsParser").NvsParseResult;
   @state() private _nvsError?: string;
   @state() private _nvsConfirmErase = false;
+  @state() private _nvsErased = false;
   private _nvsPartition?: Partition;
 
   // Track if Improv was already checked (to avoid repeated attempts)
@@ -1835,6 +1836,22 @@ export class EwtInstallDialog extends LitElement {
 
     if (this._busy) {
       content = this._renderProgress("Reading NVS partition...");
+    } else if (this._nvsErased) {
+      content = html`
+        <ewt-page-message
+          .icon=${OK_ICON}
+          label="NVS partition erased successfully"
+        ></ewt-page-message>
+        <div class="nvs-summary">
+          The NVS storage has been erased. Reset your device for the
+          firmware to re-initialize a fresh NVS partition.
+        </div>
+        <ewt-button
+          slot="primaryAction"
+          label="Back"
+          @click=${() => this._nvsBack()}
+        ></ewt-button>
+      `;
     } else if (this._nvsError) {
       content = html`
         <ewt-page-message
@@ -1982,9 +1999,8 @@ export class EwtInstallDialog extends LitElement {
 
       this.logger.log("NVS partition erased successfully.");
       this._nvsResult = undefined;
-      this._nvsError = undefined;
-
-      await this._readNvs();
+      this._nvsErased = true;
+      this._busy = false;
     } catch (e: any) {
       this.logger.error(`Failed to erase NVS: ${e.message || e}`);
       this._nvsError = `Failed to erase NVS: ${e.message || e}`;
@@ -1998,6 +2014,7 @@ export class EwtInstallDialog extends LitElement {
     this._nvsResult = undefined;
     this._nvsError = undefined;
     this._nvsConfirmErase = false;
+    this._nvsErased = false;
     this._nvsPartition = undefined;
 
     try {
