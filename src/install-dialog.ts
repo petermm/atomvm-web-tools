@@ -99,6 +99,7 @@ export class EwtInstallDialog extends LitElement {
   @state() private _nvsError?: string;
   @state() private _nvsConfirmErase = false;
   @state() private _nvsErased = false;
+  @state() private _nvsShowAll = false;
   private _nvsPartition?: Partition;
 
   // Track if Improv was already checked (to avoid repeated attempts)
@@ -1866,12 +1867,13 @@ export class EwtInstallDialog extends LitElement {
       `;
     } else if (this._nvsResult) {
       const result = this._nvsResult;
-      const grouped = new Map<string, NvsEntryInfo[]>();
-      for (const entry of result.entries) {
-        const ns = entry.namespace;
-        if (!grouped.has(ns)) grouped.set(ns, []);
-        grouped.get(ns)!.push(entry);
-      }
+      const hiddenNs = ["nvs.net80211", "phy"];
+      const filtered = this._nvsShowAll
+        ? result.entries
+        : result.entries.filter(
+            (e: NvsEntryInfo) => !hiddenNs.includes(e.namespace),
+          );
+      const hiddenCount = result.entries.length - filtered.length;
 
       content = html`
         ${result.warnings.length
@@ -1887,6 +1889,21 @@ export class EwtInstallDialog extends LitElement {
         <div class="nvs-summary">
           Found ${result.entries.length} entries in
           ${result.namespaces.length} namespace(s) (NVS v${result.version})
+          ${hiddenCount > 0
+            ? html` ·
+                <a
+                  class="nvs-toggle-filter"
+                  href="#"
+                  @click=${(ev: Event) => {
+                    ev.preventDefault();
+                    this._nvsShowAll = !this._nvsShowAll;
+                  }}
+                >
+                  ${this._nvsShowAll
+                    ? "Hide system entries"
+                    : `Show ${hiddenCount} hidden system entries`}
+                </a>`
+            : ""}
         </div>
         <div class="nvs-list">
           <table class="partition-table">
@@ -1899,7 +1916,7 @@ export class EwtInstallDialog extends LitElement {
               </tr>
             </thead>
             <tbody>
-              ${result.entries.map(
+              ${filtered.map(
                 (entry: NvsEntryInfo) => html`
                   <tr>
                     <td>${entry.namespace}</td>
@@ -2015,6 +2032,7 @@ export class EwtInstallDialog extends LitElement {
     this._nvsError = undefined;
     this._nvsConfirmErase = false;
     this._nvsErased = false;
+    this._nvsShowAll = false;
     this._nvsPartition = undefined;
 
     try {
@@ -3464,6 +3482,15 @@ export class EwtInstallDialog extends LitElement {
       .nvs-error {
         color: #c62828;
         font-size: 13px;
+      }
+      .nvs-toggle-filter {
+        font-size: 13px;
+        color: #03a9f4;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .nvs-toggle-filter:hover {
+        text-decoration: underline;
       }
       .nvs-erase-confirm {
         margin-top: 12px;
