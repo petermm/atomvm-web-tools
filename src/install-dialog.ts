@@ -1922,7 +1922,26 @@ export class EwtInstallDialog extends LitElement {
                     <td>${entry.namespace}</td>
                     <td>${entry.key}</td>
                     <td>${entry.type}</td>
-                    <td class="nvs-value">${entry.valuePreview}</td>
+                    <td class="nvs-value">
+                      <span
+                        class="nvs-copy"
+                        title="Copy value"
+                        @click=${() => {
+                          let text: string;
+                          if (entry.value instanceof Uint8Array) {
+                            text = Array.from(entry.value)
+                              .map((b: number) => b.toString(16).padStart(2, "0"))
+                              .join("");
+                          } else if (entry.value != null) {
+                            text = String(entry.value);
+                          } else {
+                            text = entry.valuePreview;
+                          }
+                          navigator.clipboard.writeText(text);
+                        }}
+                      >📋</span>
+                      ${entry.valuePreview}
+                    </td>
                   </tr>
                 `,
               )}
@@ -3482,6 +3501,15 @@ export class EwtInstallDialog extends LitElement {
       .nvs-error {
         color: #c62828;
         font-size: 13px;
+      }
+      .nvs-copy {
+        cursor: pointer;
+        opacity: 0.4;
+        font-size: 24px;
+        margin-right: 4px;
+      }
+      .nvs-copy:hover {
+        opacity: 1;
       }
       .nvs-toggle-filter {
         font-size: 13px;
